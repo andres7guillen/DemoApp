@@ -12,7 +12,7 @@ namespace Domain.Repositories
     {
         Task<Employee> Create(Employee employee);
         IQueryable<Employee> GetById(Guid id);
-        IQueryable<Employee> GetAll();
+        Task<List<EmployeeDTO>> GetAll();
         Task<Employee> Edit(Employee employee);
         Task<bool> Delete(Guid id);
     }

@@ -26,27 +26,20 @@ namespace Infrastructure.Services
 
         public async Task<IEnumerable<EmployeeDTO>> GetAll()
         {
-            var employees = _repository.GetAll().ToList();
-            return employees.Select(c => new EmployeeDTO()
-            {
-                Company = c.Company.Name,
-                CompanyId = c.Company.Id,
-                DateAdmission = c.DateAdmission,
-                Name= c.Name,
-                Id = c.Id
-            }).ToList();
+            return await _repository.GetAll();
         }
 
         public async Task<EmployeeDTO> GetById(Guid id) {
-            var employee = _repository.GetById(id).FirstOrDefault();
+            var employee = await  _repository.GetById(id).FirstOrDefaultAsync();
             return new EmployeeDTO()
             {
                 Company = employee.Company.Name,
+                CompanyId = employee.Company.Id,
                 DateAdmission = employee.DateAdmission,
-                Name = employee.Name,
                 Id = employee.Id,
-                CompanyId = employee.Company.Id
+                Name = employee.Name
             };
+            
         }
     }
 }
