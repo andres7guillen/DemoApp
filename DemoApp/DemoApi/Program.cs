@@ -1,9 +1,12 @@
+using ApplicationDemoApp.Queries;
 using Data.Context;
 using Domain.Repositories;
 using Domain.Services;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,7 +15,10 @@ builder.Services.AddDbContext<DemoContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DbContext"));
 });
 
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly(),
+    typeof(GetAllCompaniesQuery).Assembly
+    ));
 
 // Add services to the container.
 builder.Services.AddScoped<ICompanyService, CompanyService>();

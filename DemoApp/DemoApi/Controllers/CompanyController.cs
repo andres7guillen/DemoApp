@@ -1,9 +1,12 @@
 ﻿
+using ApplicationDemoApp.Commands;
+using ApplicationDemoApp.Queries;
 using AutoMapper;
 using DemoApi.Converts;
 using DemoApi.Models;
 using Domain.Entities;
 using Domain.Services;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,11 +18,13 @@ namespace DemoApi.Controllers
     {
         private readonly ICompanyService _service;
         private readonly IMapper _mapper;
+        private readonly IMediator _mediator;
 
-        public CompanyController(ICompanyService service, IMapper mapper)
+        public CompanyController(ICompanyService service, IMapper mapper, IMediator mediator)
         {
             _service = service;
             _mapper = mapper;
+            _mediator = mediator;
         }
 
         [HttpPost]
@@ -30,7 +35,7 @@ namespace DemoApi.Controllers
                 if (ModelState.IsValid)
                 {
                     var companyEntity = _mapper.Map<Company>(model);
-                    var result = await _service.Create(companyEntity);
+                    var result = _mediator.Send(new CreateCompanyCommand() { Company = companyEntity });
 
                     return Ok(result.Id);
                 }
@@ -50,7 +55,9 @@ namespace DemoApi.Controllers
         {
             try
             {
-                var list = await _service.GetAll();
+                //var list = await _service.GetAll();
+                var query = new GetAllCompaniesQuery();
+                var list = await _mediator.Send(query);
                 return Ok(_mapper.Map<IEnumerable<Company>, IEnumerable<CompanyModel>>(list));
             }
             catch (Exception e)
@@ -63,7 +70,9 @@ namespace DemoApi.Controllers
         public async Task<IActionResult> Get(string id)
         {
             Guid idGuid = Guid.Parse(id);
-            var companyResult = await _service.GetById(idGuid);
+            var query = new GetCompanyByIdQuery(idGuid);
+            var companyResult = await _mediator.Send(query);
+            
             if (companyResult == null)
                 return NotFound();
             return Ok(CompanyConvert.toModel(companyResult));
@@ -73,15 +82,15 @@ namespace DemoApi.Controllers
         public async Task<IActionResult> Update([FromBody]CompanyModel model)
         {
             var companyEntity = _mapper.Map<CompanyModel, Company>(model);
-            var companyUpdated = await _service.Edit(companyEntity);
-            return Ok(companyUpdated.Id);
+            var companyUpdated = await _mediator.Send(new UpdateCompanyCommand() { Company = companyEntity });
+            return Ok(companyUpdated);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
             var guidId = Guid.Parse(id);
-            var result = await _service.Delete(guidId);
+            var result = await _mediator.Send(new DeleteCompanyCommand() { Id = guidId });
             return Ok(result);
         }
     }
