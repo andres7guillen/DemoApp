@@ -29,17 +29,9 @@ namespace Infrastructure.Services
             return await _repository.GetAll();
         }
 
-        public async Task<EmployeeDTO> GetById(Guid id) {
-            var employee = await  _repository.GetById(id).FirstOrDefaultAsync();
-            return new EmployeeDTO()
-            {
-                Company = employee.Company.Name,
-                CompanyId = employee.Company.Id,
-                DateAdmission = employee.DateAdmission,
-                Id = employee.Id,
-                Name = employee.Name
-            };
-            
+        public async Task<EmployeeDTO> GetById(Guid id)
+        {
+            return await _repository.GetById(id);
         }
     }
 }

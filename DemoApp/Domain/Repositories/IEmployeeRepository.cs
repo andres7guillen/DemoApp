@@ -11,7 +11,7 @@ namespace Domain.Repositories
     public interface IEmployeeRepository
     {
         Task<Employee> Create(Employee employee);
-        IQueryable<Employee> GetById(Guid id);
+        Task<EmployeeDTO> GetById(Guid id);
         Task<List<EmployeeDTO>> GetAll();
         Task<Employee> Edit(Employee employee);
         Task<bool> Delete(Guid id);

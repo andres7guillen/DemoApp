@@ -57,11 +57,15 @@ namespace Infrastructure.Repositories
             }
         }
 
-        public IQueryable<Employee> GetById(Guid id)
+        public async Task<EmployeeDTO> GetById(Guid id)
         {
-            return _context.Employees
-                .Include(e => e.Company)
-                .Where(e => e.Id == id).AsQueryable();
+            using (var connection = _dapperContext.CreateConnection()) 
+            { 
+                DynamicParameters parameters = new DynamicParameters();
+                parameters.Add("@employeeId", id, dbType: DbType.Guid);
+                var employee = await connection.QueryFirstOrDefaultAsync<EmployeeDTO>("usp_get_employee_by_id", parameters, commandType: CommandType.StoredProcedure);
+                return employee;
+            }
         }
     }
 }
